@@ -90,6 +90,8 @@ namespace UnityNetframe
 
             // Prepare Request
             UnityWebRequest webRequest = new UnityWebRequest(requestConfig.url, requestMethod);
+            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+            webRequest.downloadHandler = dH;
             foreach (KeyValuePair<string, string> header in requestConfig.headers)
             {
                 webRequest.SetRequestHeader(header.Key, header.Value);
@@ -127,6 +129,7 @@ namespace UnityNetframe
                             webRequest.downloadHandler);
                     break;
                 case UnityWebRequest.Result.Success:
+                    Debug.Log(webRequest.downloadHandler);
                     if(_config.debugMode) Debug.Log($"(<b>Success!</b>) {requestMethod} Request to: {requestConfig.url} successfully sended.\nResponse Data:{webRequest.downloadHandler.text}");
                     if (requestConfig.onComplete != null) requestConfig.onComplete(webRequest.downloadHandler.text);
                     if (requestConfig.cacheRequest) SaveRequestCache(requestConfig.url, webRequest.downloadHandler.text);

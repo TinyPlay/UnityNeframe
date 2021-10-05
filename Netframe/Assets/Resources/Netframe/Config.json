@@ -1,1 +1,1 @@
-{"debugMode":true,"saveQueueBetweenSessions":true,"maxRequestQueue":10,"queueRequestsInterval":5.0,"queueMaxAttempts":10}
+{"debugMode":true,"cacheLifetime":600,"saveQueueBetweenSessions":true,"maxRequestQueue":10,"queueRequestsInterval":5.0,"queueMaxAttempts":10}
