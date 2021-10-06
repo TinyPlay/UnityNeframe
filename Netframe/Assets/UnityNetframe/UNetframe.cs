@@ -81,6 +81,15 @@ namespace UnityNetframe
         }
 
         /// <summary>
+        /// Get Cache Lifetime
+        /// </summary>
+        /// <returns></returns>
+        public int GetCacheLifetime()
+        {
+            return _config.cacheLifetime;
+        }
+
+        /// <summary>
         /// Set Max Queue Requests
         /// </summary>
         /// <param name="requests"></param>
@@ -92,6 +101,15 @@ namespace UnityNetframe
         }
 
         /// <summary>
+        /// Get Max Queue Requests
+        /// </summary>
+        /// <returns></returns>
+        public int GetMaxQueueRequests()
+        {
+            return _config.maxRequestQueue;
+        }
+
+        /// <summary>
         /// Set Queue Interval
         /// </summary>
         /// <param name="interval"></param>
@@ -100,6 +118,15 @@ namespace UnityNetframe
         {
             _config.queueRequestsInterval = interval;
             return this;
+        }
+
+        /// <summary>
+        /// Get Queue Interval
+        /// </summary>
+        /// <returns></returns>
+        public float GetQueueInterval()
+        {
+            return _config.queueRequestsInterval;
         }
     }
 }

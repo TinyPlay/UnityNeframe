@@ -44,4 +44,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NetworkStatus: {fileID: 0}
-  NetworkStatusUpdateInterval: 3
+  NetworkStatusUpdateInterval: 20
+  RequestUrlField: {fileID: 0}
+  RequestCacheToggle: {fileID: 0}
+  RequestTypeField: {fileID: 0}
+  AddToQueueButton: {fileID: 0}
+  SendRequestButton: {fileID: 0}
+  QueueItemTemplate: {fileID: 3335649566946918476, guid: ed86ab2241c37d94fb87b0331cadf7a7, type: 3}
+  QueueView: {fileID: 0}
+  QueueSendButton: {fileID: 0}

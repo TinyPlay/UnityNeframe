@@ -18,6 +18,7 @@ namespace UnityNetframe.Core
     using System.Collections.Generic;
     using System.Runtime.Serialization.Formatters.Binary;
     using UnityEngine;
+    using UnityEngine.Events;
     using UnityNetframe.Core;
     using UnityNetframe.Utils;
     
@@ -26,6 +27,9 @@ namespace UnityNetframe.Core
     /// </summary>
     public class QueueManager
     {
+        // Public Params
+        public UnityEvent QueueSended = new UnityEvent();
+        
         // Private Params
         private NetframeConfig _config;
         private NetworkManager _requests;
@@ -198,7 +202,7 @@ namespace UnityNetframe.Core
                 
                 // Save Queue
                 if (_config.saveQueueBetweenSessions) SaveQueue();
-                
+                QueueSended.Invoke();
                 yield return new WaitForSeconds(_config.queueRequestsInterval);
             }
         }
@@ -211,6 +215,15 @@ namespace UnityNetframe.Core
         {
             CoroutineProvider.Stop(SendQueue());
             return this;
+        }
+
+        /// <summary>
+        /// Get Queue Count
+        /// </summary>
+        /// <returns></returns>
+        public int GetQueueCount()
+        {
+            return _requestQueue.Count;
         }
 
         /// <summary>

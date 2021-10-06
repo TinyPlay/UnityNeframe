@@ -119,8 +119,8 @@ namespace UnityNetframe.Core
         /// <returns></returns>
         private string GetRequestCache(string url)
         {
-            string cachePath = Application.dataPath + Base64.Encode(url) + "_.cache";
-            string cacheStamp = Application.dataPath + Base64.Encode(url) + ".cachestamp";
+            string cachePath = Application.persistentDataPath + Base64.Encode(url) + "_.cache";
+            string cacheStamp = Application.persistentDataPath + Base64.Encode(url) + ".cachestamp";
             if (File.Exists(cachePath) && File.Exists(cacheStamp))
             {
                 int cacheCreationTime = Int32.Parse(File.ReadAllText(cacheStamp));
@@ -146,8 +146,8 @@ namespace UnityNetframe.Core
         /// <param name="response"></param>
         private void SaveRequestCache(string url, string responseData)
         {
-            string cachePath = Application.dataPath + Base64.Encode(url) + ".cache";
-            string cacheStamp = Application.dataPath + Base64.Encode(url) + ".cachestamp";
+            string cachePath = Application.persistentDataPath + Base64.Encode(url) + ".cache";
+            string cacheStamp = Application.persistentDataPath + Base64.Encode(url) + ".cachestamp";
             File.WriteAllText(cachePath, responseData);
             File.WriteAllText(cacheStamp, UnixTime.Current().ToString());
         }
@@ -322,7 +322,7 @@ namespace UnityNetframe.Core
         /// <param name="contentData"></param>
         private void SaveContentCache(string url, byte[] contentData)
         {
-            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            string cachePath = Application.persistentDataPath + Base64.Encode(url) + ".contentcache";
             File.WriteAllBytes(cachePath, contentData);
         }
 
@@ -334,7 +334,7 @@ namespace UnityNetframe.Core
         private Texture2D GetTextureCache(string url)
         {
             Texture2D texture = null;
-            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            string cachePath = Application.persistentDataPath + Base64.Encode(url) + ".contentcache";
             
             if (File.Exists(cachePath))
             {
@@ -354,7 +354,7 @@ namespace UnityNetframe.Core
         private AudioClip GetAudioClipCache(string url)
         {
             AudioClip audioClip = null;
-            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            string cachePath = Application.persistentDataPath + Base64.Encode(url) + ".contentcache";
             
             if (File.Exists(cachePath))
             {
