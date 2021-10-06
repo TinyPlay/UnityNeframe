@@ -109,32 +109,20 @@ namespace UnityNetframe
 
             // Send Request
             yield return webRequest.SendWebRequest();
-            switch (webRequest.result)
+
+            if (webRequest.result == UnityWebRequest.Result.Success)
             {
-                case UnityWebRequest.Result.ConnectionError:
-                    if(_config.debugMode) Debug.LogError($"(<b>Connection Error!</b>) Failed to send {requestMethod} Request to: {requestConfig.url}\nError:{webRequest.error}");
-                    if (requestConfig.onError != null) requestConfig.onError(webRequest.error);
-                    break;
-                case UnityWebRequest.Result.DataProcessingError:
-                    if(_config.debugMode) Debug.LogError($"(<b>Data Processing Error!</b>) Failed to send {requestMethod} Request to: {requestConfig.url}\nError:{webRequest.error}");
-                    if (requestConfig.onError != null) requestConfig.onError(webRequest.error);
-                    break;
-                case UnityWebRequest.Result.ProtocolError:
-                    if(_config.debugMode) Debug.LogError($"(<b>Protocol Error!</b>) Failed to send {requestMethod} Request to: {requestConfig.url}\nError:{webRequest.error}");
-                    if (requestConfig.onError != null) requestConfig.onError(webRequest.error);
-                    break;
-                case UnityWebRequest.Result.InProgress:
-                    if (requestConfig.onProgress != null)
-                        requestConfig.onProgress(webRequest.downloadProgress, webRequest.downloadedBytes,
-                            webRequest.downloadHandler);
-                    break;
-                case UnityWebRequest.Result.Success:
-                    Debug.Log(webRequest.downloadHandler);
-                    if(_config.debugMode) Debug.Log($"(<b>Success!</b>) {requestMethod} Request to: {requestConfig.url} successfully sended.\nResponse Data:{webRequest.downloadHandler.text}");
-                    if (requestConfig.onComplete != null) requestConfig.onComplete(webRequest.downloadHandler.text);
-                    if (requestConfig.cacheRequest) SaveRequestCache(requestConfig.url, webRequest.downloadHandler.text);
-                    break;
+                if(_config.debugMode) Debug.Log($"(<b>Success!</b>) {requestMethod} Request to: {requestConfig.url} successfully sended.\nResponse Data:{webRequest.downloadHandler.text}");
+                if (requestConfig.onComplete != null) requestConfig.onComplete(webRequest.downloadHandler.text);
+                if (requestConfig.cacheRequest) SaveRequestCache(requestConfig.url, webRequest.downloadHandler.text);
             }
+            else
+            {
+                if(_config.debugMode) Debug.LogError($"Failed to send {requestMethod} Request to: {requestConfig.url}\nError:{webRequest.error}");
+                if (requestConfig.onError != null) requestConfig.onError(webRequest.error);
+            }
+
+            webRequest.Dispose();
         }
 
         /// <summary>
@@ -179,13 +167,217 @@ namespace UnityNetframe
         #endregion
 
         #region Content Management
-        
-        
+        /// <summary>
+        /// Download AudioClip from Server
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        public void DownloadAudioClip(AudioClipRequestData requestConfig)
+        {
+            CoroutineProvider.Start(GetAudioClip(requestConfig));
+        }
+        /// <summary>
+        /// Get Audio Clip from Server
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        /// <returns></returns>
+        private IEnumerator GetAudioClip(AudioClipRequestData requestConfig)
+        {
+            // Get AudioClip Cache
+            if (requestConfig.cacheAudioClip)
+            {
+                AudioClip cachedClip = GetAudioClipCache(requestConfig.url);
+                if (requestConfig.onComplete != null) requestConfig.onComplete(cachedClip);
+            }
+            
+            // Prepare Request
+            if(_config.debugMode) Debug.Log($"Downloading AudioClip from: {requestConfig.url}");
+            UnityWebRequest multimedia = UnityWebRequestMultimedia.GetAudioClip(requestConfig.url, requestConfig.audioType);
+            yield return multimedia.SendWebRequest();
 
+            if (multimedia.result == UnityWebRequest.Result.Success)
+            {
+                if(_config.debugMode) Debug.Log($"(<b>Success!</b>) Downloading AudioClip complete from {requestConfig.url}");
+                if (requestConfig.onComplete != null)
+                    requestConfig.onComplete(DownloadHandlerAudioClip.GetContent(multimedia));
+                if(requestConfig.cacheAudioClip) SaveContentCache(requestConfig.url, multimedia.downloadHandler.data);
+            }
+            else
+            {
+                if(_config.debugMode) Debug.LogError($"Failed to download AudioClip from: {requestConfig.url}\nError:{multimedia.error}");
+                if (requestConfig.onError != null) requestConfig.onError(multimedia.error);
+            }
+            
+            multimedia.Dispose();
+        }
+
+        /// <summary>
+        /// Download Texture2D
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        public void DownloadTexture2D(Texture2DRequestData requestConfig)
+        {
+            CoroutineProvider.Start(GetTexture2D(requestConfig));
+        }
+
+        /// <summary>
+        /// Get Texture2D from URL
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        /// <returns></returns>
+        private IEnumerator GetTexture2D(Texture2DRequestData requestConfig)
+        {
+            // Get Texure From Cache
+            if (requestConfig.cacheTexture)
+            {
+                Texture2D cachedTexture = GetTextureCache(requestConfig.url);
+                if (requestConfig.onComplete != null) requestConfig.onComplete(cachedTexture);
+            }
+            
+            // Prepare Request for Texutre
+            if(_config.debugMode) Debug.Log($"Downloading Texture2D from: {requestConfig.url}");
+            UnityWebRequest textureRequest = UnityWebRequestTexture.GetTexture(requestConfig.url);
+            yield return textureRequest.SendWebRequest();
+
+            if (textureRequest.result == UnityWebRequest.Result.Success)
+            {
+                if(_config.debugMode) Debug.Log($"(<b>Success!</b>) Downloading Texture2D complete from {requestConfig.url}");
+                if (requestConfig.onComplete != null)
+                    requestConfig.onComplete(DownloadHandlerTexture.GetContent(textureRequest));
+                if(requestConfig.cacheTexture) SaveContentCache(requestConfig.url, textureRequest.downloadHandler.data);
+            }
+            else
+            {
+                if(_config.debugMode) Debug.LogError($"Failed to download Texture2D from: {requestConfig.url}\nError:{textureRequest.error}");
+                if (requestConfig.onError != null) requestConfig.onError(textureRequest.error);
+            }
+
+            textureRequest.Dispose();
+        }
+
+        /// <summary>
+        /// Download Asset Bundle from Server
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        public void DownloadAssetBundle(AssetBundleRequestData requestConfig)
+        {
+            CoroutineProvider.Start(GetAssetBundle(requestConfig));
+        }
+
+        /// <summary>
+        /// Get AssetBundle from Server
+        /// </summary>
+        /// <param name="requestConfig"></param>
+        /// <returns></returns>
+        private IEnumerator GetAssetBundle(AssetBundleRequestData requestConfig)
+        {
+            // Get Bundle from Cache
+            while (!Caching.ready) {
+                yield return null;
+            }
+            
+            // Prepare Request Asset Bundle
+            if(_config.debugMode) Debug.Log($"Downloading AssetBundle Manifest from: {requestConfig.mainfestUrl}");
+            UnityWebRequest manifestRequest = UnityWebRequest.Get(requestConfig.mainfestUrl);
+            yield return manifestRequest.SendWebRequest();
+            if (manifestRequest.result == UnityWebRequest.Result.Success)
+            {
+                Hash128 hash = default;
+                string hashRow = manifestRequest.downloadHandler.text.ToString().Split("\n".ToCharArray())[5];
+                hash = Hash128.Parse(hashRow.Split(':')[1].Trim());
+                if (hash.isValid == true)
+                {
+                    manifestRequest.Dispose();
+                    UnityWebRequest bundleRequset = UnityWebRequestAssetBundle.GetAssetBundle(requestConfig.bundleUrl, hash, 0);
+                    yield return bundleRequset.SendWebRequest();
+
+                    if (manifestRequest.result == UnityWebRequest.Result.Success)
+                    {
+                        if(_config.debugMode) Debug.LogError($"Failed to download AssetBundle from: {requestConfig.bundleUrl}\nError:{bundleRequset.error}");
+                        if (requestConfig.onError != null) requestConfig.onError(bundleRequset.error);
+                    }
+                    else
+                    {
+                        if(_config.debugMode) Debug.Log($"(<b>Success!</b>) Downloading AssetBundle complete from {requestConfig.bundleUrl}");
+                        if (requestConfig.onComplete != null)
+                            requestConfig.onComplete(DownloadHandlerAssetBundle.GetContent(bundleRequset));
+                    }
+
+                    bundleRequset.Dispose();
+                }
+                else
+                {
+                    if(_config.debugMode) Debug.Log($"(<b>Manifest Loading Error!</b>) Wrong AssetBundle Manifest.");
+                    if (requestConfig.onError != null) requestConfig.onError($"Wrong AssetBundle Manifest Hash for: {requestConfig.mainfestUrl}");
+                }
+            }
+            else
+            {
+                if(_config.debugMode) Debug.Log($"(<b>Mainfest Request Error!</b>) Failed to download AssetBundle Manifest from: {requestConfig.mainfestUrl}");
+                if (requestConfig.onError != null) requestConfig.onError(manifestRequest.error);
+            }
+
+            manifestRequest.Dispose();
+        }
+
+        /// <summary>
+        /// Save Content Cache
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="contentData"></param>
+        private void SaveContentCache(string url, byte[] contentData)
+        {
+            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            File.WriteAllBytes(cachePath, contentData);
+        }
+
+        /// <summary>
+        /// Get Texture2D Cache
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private Texture2D GetTextureCache(string url)
+        {
+            Texture2D texture = null;
+            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            
+            if (File.Exists(cachePath))
+            {
+                byte[] data = File.ReadAllBytes(cachePath);
+                texture = new Texture2D(1, 1);
+                texture.LoadImage(data, true);
+            }
+            
+            return texture;
+        }
+
+        /// <summary>
+        /// Get AudioClip Cache
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private AudioClip GetAudioClipCache(string url)
+        {
+            AudioClip audioClip = null;
+            string cachePath = Application.dataPath + Base64.Encode(url) + ".contentcache";
+            
+            if (File.Exists(cachePath))
+            {
+                byte[] data = File.ReadAllBytes(cachePath);
+                using (Stream s = new MemoryStream(data))
+                {
+                    audioClip = AudioClip.Create(url, data.Length, 1, 48000, false);
+                    float[] f = Converters.ConvertByteToFloat(data);
+                    audioClip.SetData(f, 0);
+                }
+                audioClip.LoadAudioData();
+            }
+            
+            return audioClip;
+        }
         #endregion
 
         #region Queue Management
-
+        
         
 
         #endregion
@@ -225,8 +417,87 @@ namespace UnityNetframe
                 }
             });
         }
+
+        /// <summary>
+        /// Get Content-Length in bytes by Response Header
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="onComplete"></param>
+        public void GetContentLength(string url, Action<int> onComplete)
+        {
+            CoroutineProvider.Start(GetHeaderLength(url, onComplete));
+        }
+
+        /// <summary>
+        /// Get Content-Length Header
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="onComplete"></param>
+        /// <returns></returns>
+        private IEnumerator GetHeaderLength(string url, Action<int> onComplete, Action<string> onError = null)
+        {
+            // Prepare to Get Request Header
+            if(_config.debugMode) Debug.Log($"Trying to get Content-Length for: {url}");
+            UnityWebRequest webRequest = UnityWebRequest.Head(url);
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result == UnityWebRequest.Result.Success)
+            {
+                var contentLength = webRequest.GetResponseHeader("Content-Length");
+                if (int.TryParse(contentLength, out int returnValue))
+                {
+                    if(_config.debugMode) Debug.Log($"(<b>Success!</b>) Content-Length for {url} is {returnValue} bytes");
+                    onComplete(returnValue);
+                }
+                else
+                {
+                    if (onError != null) onError($"Failed to parse Content-Length parameter for {url}");
+                }
+            }
+            else
+            {
+                if(_config.debugMode) Debug.LogError($"Failed to get Content-Length for: {url}\nError:{webRequest.error}");
+                if (onError != null) onError(webRequest.error);
+            }
+
+            webRequest.Dispose();
+        }
         
+        /// <summary>
+        /// Clear Asset Bundle Cache by URL
+        /// </summary>
+        /// <param name="url"></param>
+        public void ClearAssetBundleCache(string url)
+        {
+            string fileName = GetFileNameFromUrl(url);
+            Caching.ClearAllCachedVersions(fileName);
+        }
+
+        /// <summary>
+        /// Get Filename from URL
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private string GetFileNameFromUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            string fileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
+
+            return fileName;
+        }
         
+        /// <summary>
+        /// Get Hash From Manifest
+        /// </summary>
+        /// <param name="manifest"></param>
+        /// <returns></returns>
+        private Hash128 GetHashFromManifest(string manifest)
+        {
+            string hashRow = manifest.Split("\n".ToCharArray())[5];
+            var hash = Hash128.Parse(hashRow.Split(':')[1].Trim());
+
+            return hash;
+        }
         #endregion
     }
 }

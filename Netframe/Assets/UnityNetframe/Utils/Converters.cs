@@ -11,6 +11,7 @@
  */
 namespace UnityNetframe.Utils
 {
+    using System;
     using UnityNetframe.Core.Enums;
     
     /// <summary>
@@ -38,6 +39,25 @@ namespace UnityNetframe.Utils
                 default:
                     return "GET";
             }
+        }
+        
+        /// <summary>
+        /// Convert Byte to Float
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static float[] ConvertByteToFloat(byte[] array)
+        {
+            float[] floatArr = new float[array.Length / 4];
+            for (int i = 0; i < floatArr.Length; i++)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(array, i * 4, 4);
+                }
+                floatArr[i] = BitConverter.ToSingle(array, i * 4) / 0x80000000;
+            }
+            return floatArr;
         }
     }
 }
