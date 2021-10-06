@@ -55,7 +55,7 @@ public class DemoController : MonoBehaviour
         if (timeToUpdateStatus <= 0f)
         {
             timeToUpdateStatus = NetworkStatusUpdateInterval;
-            UNet.GetNetworkType(status =>
+            UNet.Network.GetNetworkType(status =>
             {
                 string netState = "";
                 switch (status)
