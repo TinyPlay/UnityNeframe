@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityNetframe;
+using UnityNetframe.Core;
 using UnityNetframe.Core.Enums;
 
 /// <summary>

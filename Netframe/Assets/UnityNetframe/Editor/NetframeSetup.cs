@@ -70,8 +70,6 @@ namespace UnityNetframe.Editor
                 Configuration.maxRequestQueue, 1, 200);
             Configuration.queueRequestsInterval = EditorGUILayout.Slider(new GUIContent("Queue Request Interval", "Interval between requests to send from the queue"),
                 Configuration.queueRequestsInterval, 0.1f, 50f);
-            Configuration.queueMaxAttempts = EditorGUILayout.IntSlider(new GUIContent("Max Queue Request Attempts", "Maximum number of attempts when sending a request from the queue"),
-                Configuration.maxRequestQueue, 1, 200);
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
 

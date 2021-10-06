@@ -43,17 +43,19 @@ namespace UnityNetframe.Core
         /// Send Web Request
         /// </summary>
         /// <param name="requestConfiguration"></param>
-        public void SendRequest(RequestData requestConfiguration)
+        /// <param name="requestComplete"></param>
+        public void SendRequest(RequestData requestConfiguration, Action requestComplete = null)
         {
-            CoroutineProvider.Start(SendWebRequest(requestConfiguration));
+            CoroutineProvider.Start(SendWebRequest(requestConfiguration, requestComplete));
         }
         
         /// <summary>
         /// Send GET Request
         /// </summary>
         /// <param name="requestConfig"></param>
+        /// <param name="requestComplete"></param>
         /// <returns></returns>
-        private IEnumerator SendWebRequest(RequestData requestConfig)
+        private IEnumerator SendWebRequest(RequestData requestConfig, Action requestComplete = null)
         {
             // Load Request Cache
             if (requestConfig.cacheRequest)
@@ -106,6 +108,7 @@ namespace UnityNetframe.Core
                 if (requestConfig.onError != null) requestConfig.onError(webRequest.error);
             }
 
+            if(requestComplete!=null) requestComplete();
             webRequest.Dispose();
         }
 
@@ -155,16 +158,18 @@ namespace UnityNetframe.Core
         /// Download AudioClip from Server
         /// </summary>
         /// <param name="requestConfig"></param>
-        public void DownloadAudioClip(AudioClipRequestData requestConfig)
+        /// <param name="requestComplete"></param>
+        public void DownloadAudioClip(AudioClipRequestData requestConfig, Action requestComplete = null)
         {
-            CoroutineProvider.Start(GetAudioClip(requestConfig));
+            CoroutineProvider.Start(GetAudioClip(requestConfig, requestComplete));
         }
         /// <summary>
         /// Get Audio Clip from Server
         /// </summary>
         /// <param name="requestConfig"></param>
+        /// <param name="requestComplete"></param>
         /// <returns></returns>
-        private IEnumerator GetAudioClip(AudioClipRequestData requestConfig)
+        private IEnumerator GetAudioClip(AudioClipRequestData requestConfig, Action requestComplete = null)
         {
             // Get AudioClip Cache
             if (requestConfig.cacheAudioClip)
@@ -191,6 +196,7 @@ namespace UnityNetframe.Core
                 if (requestConfig.onError != null) requestConfig.onError(multimedia.error);
             }
             
+            if (requestComplete != null) requestComplete();
             multimedia.Dispose();
         }
 
@@ -198,17 +204,19 @@ namespace UnityNetframe.Core
         /// Download Texture2D
         /// </summary>
         /// <param name="requestConfig"></param>
-        public void DownloadTexture2D(Texture2DRequestData requestConfig)
+        /// <param name="requestComplete"></param>
+        public void DownloadTexture2D(Texture2DRequestData requestConfig, Action requestComplete = null)
         {
-            CoroutineProvider.Start(GetTexture2D(requestConfig));
+            CoroutineProvider.Start(GetTexture2D(requestConfig, requestComplete));
         }
 
         /// <summary>
         /// Get Texture2D from URL
         /// </summary>
         /// <param name="requestConfig"></param>
+        /// <param name="requestComplete"></param>
         /// <returns></returns>
-        private IEnumerator GetTexture2D(Texture2DRequestData requestConfig)
+        private IEnumerator GetTexture2D(Texture2DRequestData requestConfig, Action requestComplete = null)
         {
             // Get Texure From Cache
             if (requestConfig.cacheTexture)
@@ -235,6 +243,7 @@ namespace UnityNetframe.Core
                 if (requestConfig.onError != null) requestConfig.onError(textureRequest.error);
             }
 
+            if (requestComplete != null) requestComplete();
             textureRequest.Dispose();
         }
 
@@ -242,17 +251,19 @@ namespace UnityNetframe.Core
         /// Download Asset Bundle from Server
         /// </summary>
         /// <param name="requestConfig"></param>
-        public void DownloadAssetBundle(AssetBundleRequestData requestConfig)
+        /// <param name="requestComplete"></param>
+        public void DownloadAssetBundle(AssetBundleRequestData requestConfig, Action requestComplete = null)
         {
-            CoroutineProvider.Start(GetAssetBundle(requestConfig));
+            CoroutineProvider.Start(GetAssetBundle(requestConfig, requestComplete));
         }
 
         /// <summary>
         /// Get AssetBundle from Server
         /// </summary>
         /// <param name="requestConfig"></param>
+        /// <param name="requestComplete"></param>
         /// <returns></returns>
-        private IEnumerator GetAssetBundle(AssetBundleRequestData requestConfig)
+        private IEnumerator GetAssetBundle(AssetBundleRequestData requestConfig, Action requestComplete = null)
         {
             // Get Bundle from Cache
             while (!Caching.ready) {
@@ -300,6 +311,7 @@ namespace UnityNetframe.Core
                 if (requestConfig.onError != null) requestConfig.onError(manifestRequest.error);
             }
 
+            if (requestComplete != null) requestComplete();
             manifestRequest.Dispose();
         }
 
@@ -359,12 +371,12 @@ namespace UnityNetframe.Core
             return audioClip;
         }
         #endregion
-        
-        #region File Uploading
+
+        #region File Upload
         
 
         #endregion
-        
+
         #region Utils Methods
         /// <summary>
         /// Get Current Network Type

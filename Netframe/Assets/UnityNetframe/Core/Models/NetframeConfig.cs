@@ -23,6 +23,5 @@ namespace UnityNetframe.Core
         public bool saveQueueBetweenSessions = true;
         public int maxRequestQueue = 10;
         public float queueRequestsInterval = 5f;
-        public int queueMaxAttempts = 3;
     }
 }
