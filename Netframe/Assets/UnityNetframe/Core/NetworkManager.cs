@@ -373,8 +373,11 @@ namespace UnityNetframe.Core
         #endregion
 
         #region File Upload
-        
+        /* TODO: File Upload Methods */
+        #endregion
 
+        #region Addressables Management
+        /* TODO: Addressables Support */
         #endregion
 
         #region Utils Methods

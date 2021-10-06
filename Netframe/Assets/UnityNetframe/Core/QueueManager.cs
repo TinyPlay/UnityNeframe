@@ -13,8 +13,10 @@ namespace UnityNetframe.Core
 {
     using System;
     using System.Linq;
+    using System.IO;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Runtime.Serialization.Formatters.Binary;
     using UnityEngine;
     using UnityNetframe.Core;
     using UnityNetframe.Utils;
@@ -28,7 +30,6 @@ namespace UnityNetframe.Core
         private NetframeConfig _config;
         private NetworkManager _requests;
         private List<object> _requestQueue = new List<object>();
-        private List<object> _currentQueue = new List<object>();
 
         /// <summary>
         /// Queue Manager Constructor
@@ -38,6 +39,13 @@ namespace UnityNetframe.Core
         {
             _config = config;
             _requests = instance;
+
+            // Auto Restore Queue
+            if (_config.saveQueueBetweenSessions)
+            {
+                LoadQueue();
+                Start();
+            }
         }
 
         #region Working with Queue
@@ -137,8 +145,6 @@ namespace UnityNetframe.Core
             _requestQueue.Clear();
             return this;
         }
-        
-        
         #endregion
 
         #region Queue Processing
@@ -191,7 +197,7 @@ namespace UnityNetframe.Core
                 }
                 
                 // Save Queue
-                SaveQueue();
+                if (_config.saveQueueBetweenSessions) SaveQueue();
                 
                 yield return new WaitForSeconds(_config.queueRequestsInterval);
             }
@@ -210,19 +216,88 @@ namespace UnityNetframe.Core
         /// <summary>
         /// Save Queue
         /// </summary>
-        public void SaveQueue()
+        /// <returns></returns>
+        public bool SaveQueue()
         {
+            // Generate Save Data
+            if (_requestQueue.Count > 0)
+            {
+                QueueSaveModel save = new QueueSaveModel();
+                foreach (object requestData in _requestQueue)
+                {
+                    if (requestData is RequestData)
+                        save.WebRequests.Add((RequestData) requestData);
+                    else if(requestData is Texture2DRequestData)
+                        save.TextureRequests.Add((Texture2DRequestData) requestData);
+                    else if(requestData is AudioClipRequestData)
+                        save.AudioClipRequests.Add((AudioClipRequestData) requestData);
+                    else if(requestData is AssetBundleRequestData)
+                        save.AssetBundleRequests.Add((AssetBundleRequestData) requestData);
+                }
             
+                // Save Queue to Binary
+                BinaryFormatter converter = new BinaryFormatter();
+                string saveFile = Application.persistentDataPath + "/queue.data";
+                FileStream outputStream = new FileStream(saveFile, FileMode.Create);
+                converter.Serialize(outputStream, save);
+                outputStream.Close();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
         /// Load Queue
         /// </summary>
-        public void LoadQueue()
+        /// <returns></returns>
+        public bool LoadQueue()
         {
+            // Load Binary and Deserialize
+            QueueSaveModel save = new QueueSaveModel();
+            BinaryFormatter converter = new BinaryFormatter();
+
+            string saveFile = Application.persistentDataPath + "/queue.data";
+            if(File.Exists(saveFile)) {
+                FileStream inputStream = new FileStream(saveFile, FileMode.Open);
+                save = converter.Deserialize(inputStream) as QueueSaveModel;
+                inputStream.Close();
+            }
+            else
+            {
+                return false;
+            }
             
+            // Add to Queue
+            if (save.TextureRequests.Count > 0 || save.WebRequests.Count > 0 || save.AssetBundleRequests.Count > 0 ||
+                save.AudioClipRequests.Count > 0)
+            {
+                foreach (Texture2DRequestData requestData in save.TextureRequests)
+                {
+                    Add(requestData);
+                }
+                foreach (RequestData requestData in save.WebRequests)
+                {
+                    Add(requestData);
+                }
+                foreach (AssetBundleRequestData requestData in save.AssetBundleRequests)
+                {
+                    Add(requestData);
+                }
+                foreach (AudioClipRequestData requestData in save.AudioClipRequests)
+                {
+                    Add(requestData);
+                }
+                
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         #endregion
-        
     }
 }

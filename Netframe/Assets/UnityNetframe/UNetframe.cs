@@ -59,5 +59,47 @@ namespace UnityNetframe
             Network = new NetworkManager(_config);
             Queue = new QueueManager(_config, Network);
         }
+
+        /// <summary>
+        /// Set Debug Mode
+        /// </summary>
+        /// <param name="debugMode"></param>
+        public UNetframe SetDebugMode(bool debugMode)
+        {
+            _config.debugMode = debugMode;
+            return this;
+        }
+
+        /// <summary>
+        /// Set Cache Lifetime
+        /// </summary>
+        /// <param name="lifetime"></param>
+        public UNetframe SetCacheLifetime(int lifetime)
+        {
+            _config.cacheLifetime = lifetime;
+            return this;
+        }
+
+        /// <summary>
+        /// Set Max Queue Requests
+        /// </summary>
+        /// <param name="requests"></param>
+        /// <returns></returns>
+        public UNetframe SetMaxQueueRequests(int requests)
+        {
+            _config.maxRequestQueue = requests;
+            return this;
+        }
+
+        /// <summary>
+        /// Set Queue Interval
+        /// </summary>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        public UNetframe SetQueueInterval(float interval)
+        {
+            _config.queueRequestsInterval = interval;
+            return this;
+        }
     }
 }
